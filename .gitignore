@@ -1,0 +1,4 @@
+task response.txt
+__pycache__/
+.pytest_cache/
+.last_eval_workspace/

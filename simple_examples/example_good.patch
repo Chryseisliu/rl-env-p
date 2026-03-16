@@ -1,0 +1,35 @@
+diff --git a/task_repo_baseline/nanovllm/engine/block_manager.py b/task_repo_baseline/nanovllm/engine/block_manager.py
+--- a/task_repo_baseline/nanovllm/engine/block_manager.py
++++ b/task_repo_baseline/nanovllm/engine/block_manager.py
+@@ -71,6 +71,9 @@
+ 
+         return cached_tokens
+ 
++    def get_num_uncached_tokens(self, seq: Sequence) -> int:
++        return len(seq) - self.get_num_cached_tokens(seq)
++
+     def can_allocate(self, seq: Sequence) -> bool:
+         return len(self.free_block_ids) >= seq.num_blocks
+ 
+diff --git a/task_repo_baseline/nanovllm/engine/scheduler.py b/task_repo_baseline/nanovllm/engine/scheduler.py
+--- a/task_repo_baseline/nanovllm/engine/scheduler.py
++++ b/task_repo_baseline/nanovllm/engine/scheduler.py
+@@ -28,15 +28,16 @@
+ 
+         while self.waiting and num_seqs < self.max_num_seqs:
+             seq = self.waiting[0]
++            uncached_tokens = self.block_manager.get_num_uncached_tokens(seq)
+             if (
+-                num_batched_tokens + len(seq) > self.max_num_batched_tokens
++                num_batched_tokens + uncached_tokens > self.max_num_batched_tokens
+                 or not self.block_manager.can_allocate(seq)
+             ):
+                 break
+ 
+             num_seqs += 1
+             self.block_manager.allocate(seq)
+-            num_batched_tokens += len(seq) - seq.num_cached_tokens
++            num_batched_tokens += uncached_tokens
+             seq.status = SequenceStatus.RUNNING
+             self.waiting.popleft()
+             self.running.append(seq)

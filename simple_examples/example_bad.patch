@@ -1,0 +1,12 @@
+diff --git a/task_repo_baseline/nanovllm/engine/scheduler.py b/task_repo_baseline/nanovllm/engine/scheduler.py
+--- a/task_repo_baseline/nanovllm/engine/scheduler.py
++++ b/task_repo_baseline/nanovllm/engine/scheduler.py
+@@ -29,7 +29,7 @@
+         while self.waiting and num_seqs < self.max_num_seqs:
+             seq = self.waiting[0]
+             if (
+-                num_batched_tokens + len(seq) > self.max_num_batched_tokens
++                num_batched_tokens + len(seq) >= self.max_num_batched_tokens
+                 or not self.block_manager.can_allocate(seq)
+             ):
+                 break

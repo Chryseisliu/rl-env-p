@@ -1,0 +1,7 @@
+torch
+numpy
+pytest
+transformers
+tqdm
+xxhash
+typing_extensions
