@@ -95,7 +95,3 @@ If I want to iterate on candidate fixes from my local checkout, I can mount the 
 ```bash
 docker run --rm -it -v "$PWD":/workspace -w /workspace nano-vllm-rl-env bash
 ```
-
-## Dependency Note
-
-I expect `run_eval.py` and the hidden judge to be executed inside the intended environment image, not inside an arbitrary local laptop environment. That is why I keep the dependency contract explicit in `requirements.txt` and I do not redesign the task around whichever packages happen to be installed on one machine.
