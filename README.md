@@ -1,23 +1,23 @@
 # Nano-vLLM Engine Single-Task RL Environment
 
-I rewrote this prototype around the `nanovllm/engine` layer from `GeeeekExplorer/nano-vllm` rather than around my earlier custom mini-decoder. That is the right abstraction boundary for this task. If I want a single-task RL environment that is still representative of modern LLM inference, the engine layer is where the interesting control-flow problems live: request scheduling, prefix caching, block ownership, cache pressure, and decode lifecycle.
+I wrote this prototype around the nano-vllm engine layer from `GeeeekExplorer/nano-vllm` rather than around my earlier custom mini-decoder. If I want a single-task RL environment that is still representative of modern LLM inference, this is where the interesting control-flow problems live: request scheduling, prefix caching, block ownership, cache pressure, and decode lifecycle.
 
-I intentionally did not try to vendor the entire upstream project. For this environment, I only need the engine slice and a lightweight deterministic runner. That keeps the task judgeable and self-contained while still making it feel like real inference-system work instead of a toy tensor exercise.
+I intentionally did not try to vendor the entire upstream project. For this environment, I only need the engine slice and a lightweight deterministic runner. That keeps the task judgeable and self-contained while still making it feel like real modern inference-system work instead of a toy exercise.
 
 ## Upstream Basis
 
 This prototype is adapted from the MIT-licensed `nano-vllm` project:
 
 - Repository: `https://github.com/GeeeekExplorer/nano-vllm`
-- Engine subtree used as the conceptual and code basis: `nanovllm/engine`
+- Engine subtree used as the code basis: `nanovllm/engine`
 
 I included a short attribution note in `THIRD_PARTY_NOTICES.md`.
 
-## What The Task Is Now
+## What The Task Is
 
 The task is to repair a bug in an adapted local copy of the `nanovllm` engine implementation.
 
-More specifically, the bug is in prefill admission under prefix caching. The baseline engine correctly stores reusable full prompt blocks, but its scheduler still budgets prefill work using total prompt length instead of uncached prompt length. Under tight `max_num_batched_tokens`, that causes the engine to reject or stall requests even when the cache should allow them to proceed.
+The bug is in prefill admission under prefix caching. The baseline engine correctly stores reusable full prompt blocks, but its scheduler still budgets prefill work using total prompt length instead of uncached prompt length. Under tight `max_num_batched_tokens`, that causes the engine to reject or stall requests even when the cache should allow them to proceed.
 
 I like this version much more because it is closer to the real shape of modern inference systems work:
 
@@ -48,17 +48,15 @@ I designed this environment assuming the evaluation image preinstalls the follow
 - `xxhash`
 - `typing_extensions`
 
-Even though this prototype only exercises the engine layer, I still want the environment image to look like a plausible modern inference environment rather than a stripped educational sandbox.
-
 ## Evaluation Flow
 
-I evaluate patches, not a dirty workspace.
+(For the judge) We want to evaluate patches, not a dirty workspace.
 
-1. I restore a fresh copy of `task_repo_baseline/`.
-2. I apply only the candidate patch.
-3. I reject patches that touch protected evaluation assets or public tests.
-4. I run public tests in the candidate repo.
-5. I run hidden behavioral tests from the trusted side in a fresh Python process.
+1. restore a fresh copy of `task_repo_baseline/`.
+2. apply only the candidate patch.
+3. reject patches that touch protected evaluation assets or public tests.
+4. run public tests in the candidate repo.
+5. run hidden behavioral tests from the trusted side in a fresh Python process.
 
 The score is about engine behavior, not code style. I care about whether the candidate restores correct scheduling semantics under prefix caching pressure.
 
