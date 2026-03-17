@@ -11,8 +11,6 @@ This prototype is adapted from the MIT-licensed `nano-vllm` project:
 - Repository: `https://github.com/GeeeekExplorer/nano-vllm`
 - Engine subtree used as the code basis: `nanovllm/engine`
 
-I included a short attribution note in `THIRD_PARTY_NOTICES.md`.
-
 ## What The Task Is
 
 The task is to repair a bug in an adapted local copy of the `nanovllm` engine implementation.
@@ -64,7 +62,7 @@ The public tests intentionally expose the broad shape of the problem without ful
 
 ## Quickstart
 
-I can run the evaluator against the included example patches with:
+You can run the evaluator against the included example patches with:
 
 ```bash
 python3 run_eval.py simple_examples/example_bad.patch
@@ -75,20 +73,20 @@ python3 run_eval.py simple_examples/example_good.patch
 
 I also packaged the prototype as a simple Docker image so the intended environment can be recreated directly instead of being inferred from prose.
 
-I can build the image with:
+You can build the image with:
 
 ```bash
 docker build -t nano-vllm-rl-env .
 ```
 
-I can run the evaluator inside that image with:
+You can run the evaluator inside that image with:
 
 ```bash
 docker run --rm -it nano-vllm-rl-env python3 run_eval.py simple_examples/example_bad.patch
 docker run --rm -it nano-vllm-rl-env python3 run_eval.py simple_examples/example_good.patch
 ```
 
-If I want to iterate on candidate fixes from my local checkout, I can mount the workspace into the container:
+If you want to iterate on candidate fixes from my local checkout, you can mount the workspace into the container:
 
 ```bash
 docker run --rm -it -v "$PWD":/workspace -w /workspace nano-vllm-rl-env bash
